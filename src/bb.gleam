@@ -1,12 +1,15 @@
+import bb/internal/discovery
 import gleam/list
-import gleam/result
-import gleam/string
 
 pub fn main() -> Nil {
-  let suites = []
-
-  Nil
+  discovery.find_suite_functions()
+  |> create_and_run_suites
 }
+
+@external(erlang, "bb_ffi", "create_and_run_suites")
+fn create_and_run_suites(
+  modules: List(#(discovery.Module, discovery.Function)),
+) -> Nil
 
 pub opaque type TestCase(a) {
   TestCase(name: String, body: fn(a) -> Nil)
@@ -54,7 +57,7 @@ pub fn test_case(name: String, body: fn(a) -> Nil) -> TestCase(a) {
   TestCase(name, body)
 }
 
-fn run_suite(suite: TestSuite(a)) {
+pub fn run_suite(suite: TestSuite(a)) {
   let config = suite.before_all()
   list.reverse(suite.tests)
   |> list.each(fn(test_case) {

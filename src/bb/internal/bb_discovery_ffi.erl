@@ -1,29 +1,24 @@
 -module(bb_discovery_ffi).
--export([discover_suites/1]).
+-export([find_files/2, discover_suites/1]).
+
+%% Find files matching a pattern in a directory
+find_files(Pattern, In) ->
+    Results = filelib:wildcard(binary_to_list(Pattern), binary_to_list(In)),
+    lists:map(fun list_to_binary/1, Results).
 
 %% Discover all functions returning bb:test_suite
 discover_suites(Module) ->
     case get_module_ast(Module) of
         {ok, Forms} ->
             SuiteFunctions = extract_suite_functions(Forms),
-            Suites = lists:map(
+            lists:map(
                 fun(FunctionName) ->
-                    create_suite(Module, FunctionName)
+                    {Module, FunctionName}
                 end,
                 SuiteFunctions
-            ),
-            {ok, Suites};
-        {error, Reason} ->
-            {error, Reason}
-    end.
-
-create_suite(Module, FunctionName) ->
-    try
-        Result = Module:FunctionName(),
-        {ok, {FunctionName, Result}}
-    catch
-        Error:Reason:Stacktrace ->
-            {error, {FunctionName, {Error, Reason, Stacktrace}}}
+            );
+        _ ->
+            []
     end.
 
 %% Get the abstract syntax tree for a module
