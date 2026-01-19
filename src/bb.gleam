@@ -54,12 +54,7 @@ pub fn test_case(name: String, body: fn(a) -> Nil) -> TestCase(a) {
   TestCase(name, body)
 }
 
-pub fn run(suite: TestSuite(a)) -> Nil {
-  // TODO: make this private
-  do_run(suite)
-}
-
-fn do_run(suite: TestSuite(a)) -> Nil {
+fn run_suite(suite: TestSuite(a)) {
   let config = suite.before_all()
   list.reverse(suite.tests)
   |> list.each(fn(test_case) {
