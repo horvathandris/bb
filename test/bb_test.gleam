@@ -2,13 +2,14 @@ import bb
 import gleam/io
 
 pub fn main() -> Nil {
-  // bb.main()
-  greeting_suite()
-  |> bb.run()
+  bb.main()
+  // greeting_suite()
+  // |> bb.run()
 }
 
-pub fn greeting_suite() {
-  bb.new_suite("Greetings", setup: fn() { "World" })
+pub fn greeting_suite() -> bb.TestSuite(String) {
+  bb.new_suite("Greetings")
+  |> bb.before_all(fn() { "World" })
   |> bb.add_test(hello())
   |> bb.add_test(goodbye())
   |> bb.add_test(panic_test())

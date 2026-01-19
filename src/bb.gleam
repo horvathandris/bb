@@ -1,4 +1,6 @@
 import gleam/list
+import gleam/result
+import gleam/string
 
 pub fn main() -> Nil {
   let suites = []
@@ -7,25 +9,41 @@ pub fn main() -> Nil {
 }
 
 pub opaque type TestCase(a) {
-  TestCase(
-    name: String,
-    body: fn(a) -> Nil,
-    setup: fn(a) -> a,
-    teardown: fn(a) -> Nil,
-  )
+  TestCase(name: String, body: fn(a) -> Nil)
 }
 
 pub opaque type TestSuite(a) {
   TestSuite(
     name: String,
     tests: List(TestCase(a)),
-    setup: fn() -> a,
-    teardown: fn(a) -> Nil,
+    before_all: fn() -> a,
+    before_each: fn(a) -> a,
+    after_each: fn(a) -> Nil,
+    after_all: fn(a) -> Nil,
   )
 }
 
-pub fn new_suite(name: String, setup setup: fn() -> a) -> TestSuite(a) {
-  TestSuite(name, [], setup: setup, teardown: fn(_config) { Nil })
+pub fn new_suite(name: String) -> TestSuite(Nil) {
+  TestSuite(
+    name,
+    [],
+    before_all: fn() { Nil },
+    before_each: fn(config) { config },
+    after_each: fn(_config) { Nil },
+    after_all: fn(_config) { Nil },
+  )
+}
+
+pub fn before_all(suite: TestSuite(Nil), body: fn() -> a) -> TestSuite(a) {
+  let TestSuite(name, ..) = suite
+  TestSuite(
+    name,
+    [],
+    before_all: body,
+    before_each: fn(config) { config },
+    after_each: fn(_config) { Nil },
+    after_all: fn(_config) { Nil },
+  )
 }
 
 pub fn add_test(suite: TestSuite(a), test_case: TestCase(a)) -> TestSuite(a) {
@@ -33,26 +51,21 @@ pub fn add_test(suite: TestSuite(a), test_case: TestCase(a)) -> TestSuite(a) {
 }
 
 pub fn test_case(name: String, body: fn(a) -> Nil) -> TestCase(a) {
-  TestCase(name, body, setup: fn(config) { config }, teardown: fn(_config) {
-    Nil
-  })
-}
-
-pub fn setup_test(test_case: TestCase(a), with body: fn(a) -> a) -> TestCase(a) {
-  TestCase(..test_case, setup: body)
+  TestCase(name, body)
 }
 
 pub fn run(suite: TestSuite(a)) -> Nil {
+  // TODO: make this private
   do_run(suite)
 }
 
 fn do_run(suite: TestSuite(a)) -> Nil {
-  let config = suite.setup()
+  let config = suite.before_all()
   list.reverse(suite.tests)
   |> list.each(fn(test_case) {
-    let test_config = test_case.setup(config)
+    let test_config = suite.before_each(config)
     test_case.body(test_config)
-    test_case.teardown(test_config)
+    suite.after_each(test_config)
   })
-  suite.teardown(config)
+  suite.after_all(config)
 }
