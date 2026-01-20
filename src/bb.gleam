@@ -39,9 +39,8 @@ pub fn new_suite(name: String) -> TestSuite(Nil) {
 }
 
 pub fn before_all(suite: TestSuite(Nil), body: fn() -> a) -> TestSuite(a) {
-  let TestSuite(name, ..) = suite
   TestSuite(
-    name,
+    suite.name,
     [],
     before_all: body,
     before_each: fn(config) { config },
@@ -50,8 +49,12 @@ pub fn before_all(suite: TestSuite(Nil), body: fn() -> a) -> TestSuite(a) {
   )
 }
 
-pub fn add_test(suite: TestSuite(a), test_case: TestCase(a)) -> TestSuite(a) {
-  TestSuite(..suite, tests: [test_case, ..suite.tests])
+pub fn after_all(suite: TestSuite(a), body: fn(a) -> Nil) -> TestSuite(a) {
+  TestSuite(..suite, after_all: body)
+}
+
+pub fn tests(suite: TestSuite(a), tests: List(TestCase(a))) -> TestSuite(a) {
+  TestSuite(..suite, tests:)
 }
 
 pub fn test_case(name: String, body: fn(a) -> Nil) -> TestCase(a) {
