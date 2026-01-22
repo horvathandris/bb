@@ -3,7 +3,7 @@ import gleam/int
 
 pub fn another_suite() {
   bb.new_suite("Another suite")
-  |> bb.tests([simple_assertion(), failing_assertion()])
+  |> bb.add_tests([simple_assertion(), failing_assertion()])
 }
 
 fn simple_assertion() {

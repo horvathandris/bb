@@ -53,8 +53,12 @@ pub fn after_all(suite: TestSuite(a), body: fn(a) -> Nil) -> TestSuite(a) {
   TestSuite(..suite, after_all: body)
 }
 
-pub fn tests(suite: TestSuite(a), tests: List(TestCase(a))) -> TestSuite(a) {
-  TestSuite(..suite, tests:)
+pub fn add_tests(suite: TestSuite(a), tests: List(TestCase(a))) -> TestSuite(a) {
+  TestSuite(..suite, tests: list.reverse(tests) |> list.append(suite.tests))
+}
+
+pub fn add_test(suite: TestSuite(a), test_case: TestCase(a)) -> TestSuite(a) {
+  TestSuite(..suite, tests: [test_case, ..suite.tests])
 }
 
 pub fn test_case(name: String, body: fn(a) -> Nil) -> TestCase(a) {

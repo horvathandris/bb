@@ -10,7 +10,7 @@ pub fn main() -> Nil {
 pub fn greeting_suite() -> bb.TestSuite(String) {
   bb.new_suite("Greetings")
   |> bb.before_all(fn() { "World" })
-  |> bb.tests([hello(), goodbye()])
+  |> bb.add_tests([hello(), goodbye()])
   // |> bb.add_test(panic_test())
 }
 
