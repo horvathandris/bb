@@ -1,4 +1,5 @@
 import bb/internal/discovery
+import bb/internal/reporting
 import gleam/io
 import gleam/list
 
@@ -70,7 +71,7 @@ pub fn run_suite(suite: TestSuite(a)) {
   list.reverse(suite.tests)
   |> list.each(fn(test_case) {
     let test_config = suite.before_each(config)
-    io.println("[" <> test_case.name <> "]")
+    reporting.consume_event(reporting.TestStarted(test_case.name))
     test_case.body(test_config)
     suite.after_each(test_config)
   })

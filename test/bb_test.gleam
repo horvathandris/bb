@@ -3,15 +3,12 @@ import gleam/io
 
 pub fn main() -> Nil {
   bb.main()
-  // greeting_suite()
-  // |> bb.run()
 }
 
 pub fn greeting_suite() -> bb.TestSuite(String) {
   bb.new_suite("Greetings")
   |> bb.before_all(fn() { "World" })
   |> bb.add_tests([hello(), goodbye()])
-  // |> bb.add_test(panic_test())
 }
 
 fn hello() {
@@ -21,9 +18,6 @@ fn hello() {
 
 fn goodbye() {
   use config <- bb.test_case("Goodbye Test")
-  io.println("Goodbye, " <> config <> "!")
+  let result = "Goodbye, " <> config <> "!"
+  assert result == "Goodbye, World!"
 }
-// fn panic_test() {
-//   use config <- bb.test_case("Panic Test")
-//   panic as { "Panic, " <> config <> "!" }
-// }
